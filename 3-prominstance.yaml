@@ -1,0 +1,78 @@
+apiVersion: monitoring.coreos.com/v1
+kind: Prometheus
+metadata:
+  name: prometheus
+  namespace: monitor
+spec:
+  alerting:
+    alertmanagers:
+    - namespace: monitor
+      name: alertmanager-itdsalertmanager
+      port: web
+  securityContext:
+    runAsUser: 2000
+  serviceAccountName: prometheus
+  serviceMonitorNamespaceSelector:
+    matchNames:
+    - monitor
+  serviceMonitorSelector:
+    matchLabels:
+      team: core
+  ruleSelector:
+    matchLabels:
+      prometheus: itds
+      role: alert-rules
+  thanos:
+    baseImage: thanosio/thanos
+    version: v0.9.0
+    listenLocal: true
+    objectStorageConfig:
+      key: thanos.yaml
+      name: thanos-objstore-config
+  resources:
+    requests:
+      memory: 400Mi
+  retention: 1y
+  retentionSize: 39GB
+  storage:
+    volumeClaimTemplate:
+      metadata:
+        namespace: monitor
+      spec:
+        storageClassName: azurefile
+        resources:
+          requests:
+            storage: 40Gi
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: web
+  labels:
+    team: core
+  namespace: monitor
+spec:
+  namespaceSelector:
+    any: true
+  selector:
+    matchLabels:
+      monitoring: metrics
+  endpoints:
+  - port: web
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ingresscontrollers
+  labels:
+    team: core
+  namespace: monitor
+spec:
+  namespaceSelector:
+    any: true
+  selector:
+    matchLabels:
+      monitoring: ingress
+  endpoints:
+  - port: metrics
+    interval: 5s

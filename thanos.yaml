@@ -1,0 +1,6 @@
+type: AZURE
+config:
+  storage_account: "elkdspromstoragedev"
+  storage_account_key: "this is a secret"
+  container: "metrics"
+  max_retries: 1
