@@ -32,17 +32,7 @@ spec:
   resources:
     requests:
       memory: 400Mi
-  retention: 1y
-  retentionSize: 39GB
-  storage:
-    volumeClaimTemplate:
-      metadata:
-        namespace: monitor
-      spec:
-        storageClassName: azurefile
-        resources:
-          requests:
-            storage: 40Gi
+  retention: 4h
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
